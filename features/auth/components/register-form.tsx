@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { EyeClosedIcon, EyeIcon } from 'lucide-react';
 import { useState } from 'react';
+import Link from 'next/link';
 
 const registerSchema = z
   .object({
@@ -56,7 +57,7 @@ export default function RegisterForm() {
             height={48}
             alt="the tea wire logo"
           />
-          <CardTitle>Sign up</CardTitle>
+          <CardTitle className="text-lg">Sign up</CardTitle>
           <CardDescription>Enter your email and password below to sign up.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -182,15 +183,26 @@ export default function RegisterForm() {
           </form>
         </CardContent>
         <CardFooter>
-          <Field>
-            <Button
-              size="lg"
-              type="submit"
-              form="register-form"
-            >
-              Sign up
-            </Button>
-          </Field>
+          <div className="flex flex-col w-full gap-4">
+            <Field>
+              <Button
+                size="lg"
+                type="submit"
+                form="register-form"
+              >
+                Sign up
+              </Button>
+            </Field>
+            <div className="text-center text-sm text-gray-500">
+              Already have an account?{' '}
+              <Link
+                className="underline underline-offset-4 text-black"
+                href="/signin"
+              >
+                Sign in
+              </Link>
+            </div>
+          </div>
         </CardFooter>
       </Card>
     </div>
