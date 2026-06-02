@@ -1,7 +1,7 @@
-import RegisterForm from '@/features/auth/components/register-form';
-import Image from 'next/image';
+import { requireAuth } from '@/lib/auth-utils';
 
-export default function Home() {
+export default async function Home() {
+  await requireAuth();
   return (
     <div>
       <h1>Home page</h1>
