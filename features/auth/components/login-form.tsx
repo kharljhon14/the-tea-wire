@@ -42,11 +42,11 @@ export default function LoginForm() {
         {
           email: value.email,
           password: value.password,
-          callbackURL: '/'
+          callbackURL: '/home'
         },
         {
           onSuccess: () => {
-            router.push('/');
+            router.push('/home');
           },
           onError: (ctx) => {
             toast.error(ctx.error.message);

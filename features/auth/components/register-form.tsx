@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import Image from 'next/image';
 import { z } from 'zod/v4';
 import { useForm } from '@tanstack/react-form-nextjs';
@@ -53,11 +53,11 @@ export default function RegisterForm() {
           email: value.email,
           name: value.email,
           password: value.password,
-          callbackURL: '/'
+          callbackURL: '/home'
         },
         {
           onSuccess: () => {
-            router.push('/');
+            router.push('/home');
           },
           onError: (ctx) => {
             toast.error(ctx.error.message);
