@@ -1,57 +1,46 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
 } from '@/components/ui/card';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
-import Image from 'next/image';
-import { z } from 'zod/v4';
-import { useForm } from '@tanstack/react-form-nextjs';
+import { Field, FieldGroup, FieldLabel, FieldError } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { EyeClosedIcon, EyeIcon } from 'lucide-react';
-import { useState } from 'react';
-import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
-import { toast } from 'sonner';
+import { useForm } from '@tanstack/react-form-nextjs';
+import { EyeIcon, EyeClosedIcon } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState } from 'react';
+import z from 'zod/v4';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
-const registerSchema = z
-  .object({
-    email: z.email('Please enter a valid email address'),
-    password: z.string().min(1, 'Password is required'),
-    confirmPassword: z.string()
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    error: "Passwords don't match",
-    path: ['confirmPassword']
-  });
+const loginSchema = z.object({
+  email: z.email('Please enter a valid email address'),
+  password: z.string().min(1, 'Password is required')
+});
 
-export default function RegisterForm() {
-  // Password type toggles
-  const [passwordOpen, setPasswordOpen] = useState(false);
-
+export default function LoginForm() {
   const router = useRouter();
 
   const form = useForm({
     defaultValues: {
       email: '',
-      password: '',
-      confirmPassword: ''
+      password: ''
     },
     validators: {
-      onSubmit: registerSchema
+      onSubmit: loginSchema
     },
     onSubmit: async ({ value }) => {
-      await authClient.signUp.email(
+      await authClient.signIn.email(
         {
           email: value.email,
-          name: value.email,
           password: value.password,
           callbackURL: '/'
         },
@@ -67,6 +56,8 @@ export default function RegisterForm() {
     }
   });
 
+  const [passwordOpen, setPasswordOpen] = useState(false);
+
   return (
     <div>
       <Card>
@@ -77,12 +68,12 @@ export default function RegisterForm() {
             height={48}
             alt="the tea wire logo"
           />
-          <CardTitle className="text-lg">Sign up</CardTitle>
-          <CardDescription>Enter your email and password below to sign up.</CardDescription>
+          <CardTitle className="text-lg">Welcome back</CardTitle>
+          <CardDescription>Welcome back! Please enter your details.</CardDescription>
         </CardHeader>
         <CardContent>
           <form
-            id="register-form"
+            id="login-form"
             autoComplete="off"
             onSubmit={(e) => {
               e.preventDefault();
@@ -163,48 +154,6 @@ export default function RegisterForm() {
                       );
                     }}
                   />
-
-                  <form.Field
-                    name="confirmPassword"
-                    children={(field) => {
-                      const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid;
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor="confirmPassword">
-                            Confirm Password <span className="text-red-700">*</span>
-                          </FieldLabel>
-                          <div className="relative">
-                            <Input
-                              id={field.name}
-                              disabled={isSubmitting}
-                              name={field.name}
-                              value={field.state.value}
-                              onBlur={field.handleBlur}
-                              onChange={(e) => field.handleChange(e.target.value)}
-                              aria-invalid={isInvalid}
-                              className="pr-10"
-                              placeholder="Confirm password"
-                              type={passwordOpen ? 'text' : 'password'}
-                            />
-                            <Button
-                              className="absolute right-1"
-                              type="button"
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => setPasswordOpen(!passwordOpen)}
-                            >
-                              {passwordOpen ? (
-                                <EyeIcon className="text-gray-500" />
-                              ) : (
-                                <EyeClosedIcon className="text-gray-500" />
-                              )}
-                            </Button>
-                          </div>
-                          {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                        </Field>
-                      );
-                    }}
-                  />
                 </>
               )}
             />
@@ -219,20 +168,19 @@ export default function RegisterForm() {
                   disabled={isSubmitting}
                   size="lg"
                   type="submit"
-                  form="register-form"
+                  form="login-form"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Sign up'}
+                  {isSubmitting ? 'Logging in...' : 'Sign in'}
                 </Button>
               )}
-            />
-
+            ></form.Subscribe>
             <div className="text-center text-sm text-gray-500">
-              Already have an account?{' '}
+              Don't have an account?{' '}
               <Link
                 className="underline underline-offset-4 text-black"
-                href="/signin"
+                href="/signup"
               >
-                Sign in
+                Sign up
               </Link>
             </div>
           </div>
