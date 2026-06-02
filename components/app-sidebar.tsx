@@ -14,8 +14,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem
 } from './ui/sidebar';
-import { BellIcon, BookmarkIcon, HouseIcon, MessageCircleIcon, UserIcon } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import {
+  BellIcon,
+  BookmarkIcon,
+  HouseIcon,
+  LogOutIcon,
+  MessageCircleIcon,
+  UserIcon
+} from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { authClient } from '@/lib/auth-client';
 
 const menuItems = [
   {
@@ -51,6 +59,8 @@ const menuItems = [
 ];
 
 export default function AppSidebar() {
+  const router = useRouter();
+
   const pathName = usePathname();
 
   return (
@@ -104,7 +114,28 @@ export default function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip="Sign out"
+              className="gap-x-4 h-10 px-4 hover:cursor-pointer"
+              onClick={() => {
+                authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push('/signin');
+                    }
+                  }
+                });
+              }}
+            >
+              <LogOutIcon size="6" />
+              <span>Sign out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
