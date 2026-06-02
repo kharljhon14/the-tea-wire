@@ -17,6 +17,9 @@ import { Button } from '@/components/ui/button';
 import { EyeClosedIcon, EyeIcon } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
+import { authClient } from '@/lib/auth-client';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 const registerSchema = z
   .object({
@@ -33,6 +36,8 @@ export default function RegisterForm() {
   // Password type toggles
   const [passwordOpen, setPasswordOpen] = useState(false);
 
+  const router = useRouter();
+
   const form = useForm({
     defaultValues: {
       email: '',
@@ -43,7 +48,22 @@ export default function RegisterForm() {
       onSubmit: registerSchema
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      await authClient.signUp.email(
+        {
+          email: value.email,
+          name: value.email,
+          password: value.password,
+          callbackURL: '/'
+        },
+        {
+          onSuccess: () => {
+            router.push('/');
+          },
+          onError: (ctx) => {
+            toast.error(ctx.error.message);
+          }
+        }
+      );
     }
   });
 
@@ -84,6 +104,7 @@ export default function RegisterForm() {
                         Email <span className="text-red-700">*</span>
                       </FieldLabel>
                       <Input
+                        disabled={form.state.isSubmitting}
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
@@ -110,6 +131,7 @@ export default function RegisterForm() {
                       <div className="relative">
                         <Input
                           id={field.name}
+                          disabled={form.state.isSubmitting}
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -151,6 +173,7 @@ export default function RegisterForm() {
                       <div className="relative">
                         <Input
                           id={field.name}
+                          disabled={form.state.isSubmitting}
                           name={field.name}
                           value={field.state.value}
                           onBlur={field.handleBlur}
@@ -184,15 +207,22 @@ export default function RegisterForm() {
         </CardContent>
         <CardFooter>
           <div className="flex flex-col w-full gap-4">
-            <Field>
-              <Button
-                size="lg"
-                type="submit"
-                form="register-form"
-              >
-                Sign up
-              </Button>
-            </Field>
+            <form.Subscribe
+              selector={(state) => ({
+                isSubmitting: state.isSubmitting
+              })}
+            >
+              {(state) => (
+                <Button
+                  disabled={state.isSubmitting}
+                  size="lg"
+                  type="submit"
+                  form="register-form"
+                >
+                  {state.isSubmitting ? 'Submitting...' : 'Sign up'}
+                </Button>
+              )}
+            </form.Subscribe>
             <div className="text-center text-sm text-gray-500">
               Already have an account?{' '}
               <Link
