@@ -40,7 +40,7 @@ const menuItems = [
         url: '/notifications'
       },
       {
-        title: 'Bookmark',
+        title: 'Bookmarks',
         icon: BookmarkIcon,
         url: '/bookmarks'
       },
