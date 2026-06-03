@@ -8,7 +8,9 @@ export default function Layout({ children }: PropsWithChildren) {
     <TooltipProvider>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset className="bg-accent/20">{children}</SidebarInset>
+        <SidebarInset className="bg-accent">
+          <main className="p-4 md:px-24 md:py-6 h-full">{children}</main>
+        </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>
   );
