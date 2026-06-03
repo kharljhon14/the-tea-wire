@@ -8,6 +8,13 @@
       "when": 1780029678642,
       "tag": "0000_orange_solo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780501187368,
+      "tag": "0001_wooden_puck",
+      "breakpoints": true
     }
   ]
 }
