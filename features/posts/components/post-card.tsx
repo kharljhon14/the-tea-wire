@@ -1,10 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Separator } from './ui/separator';
-import { Button } from './ui/button';
+
 import {
   BookmarkIcon,
   HeartIcon,
@@ -12,11 +9,31 @@ import {
   MoreHorizontalIcon,
   TrashIcon
 } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { AvatarImage, AvatarFallback, Avatar } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from '@/components/ui/card';
+import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
+import { useCreatePost } from '../hooks/use-posts';
 
 interface Props {}
 
 export default function PostCard() {
+  const createPost = useCreatePost();
+
+  const handleCreatePost = () => {
+    createPost.mutate({
+      text: 'Spurs in 5'
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -91,6 +108,7 @@ export default function PostCard() {
           >
             <BookmarkIcon />
           </Button>
+          <Button onClick={handleCreatePost}>Create Post</Button>
         </div>
       </CardFooter>
     </Card>

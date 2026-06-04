@@ -1,4 +1,4 @@
-import PostCard from '@/components/post-card';
+import PostCard from '@/features/posts/components/post-card';
 import { requireAuth } from '@/lib/auth-utils';
 
 export default async function HomePage() {

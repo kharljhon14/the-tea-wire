@@ -1,11 +1,11 @@
-import { index, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { user } from './auth-schema';
 import { relations } from 'drizzle-orm';
 
 export const posts = pgTable(
   'posts',
   {
-    id: text('id').primaryKey(),
+    id: uuid('id').defaultRandom().primaryKey(),
     text: text('text').notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at')
