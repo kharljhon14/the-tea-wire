@@ -24,7 +24,7 @@ export function createAuthCaller(user: TestUser) {
   });
 }
 
-export function creatUnauthCaller() {
+export function createUnauthCaller() {
   return createCaller({
     userId: undefined,
     session: null

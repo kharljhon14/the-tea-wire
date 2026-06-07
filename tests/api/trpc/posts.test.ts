@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { user } from '@/schema/auth-schema';
 import { posts } from '@/schema/post-schema';
-import { createAuthCaller, creatUnauthCaller } from '@/tests/helpers/trpc';
+import { createAuthCaller, createUnauthCaller } from '@/tests/helpers/trpc';
 import { eq } from 'drizzle-orm';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -34,7 +34,7 @@ describe('posts.create', () => {
   });
 
   it('rejects unauthenticated users', async () => {
-    const caller = creatUnauthCaller();
+    const caller = createUnauthCaller();
 
     await expect(
       caller.posts.create({
@@ -55,5 +55,115 @@ describe('posts.create', () => {
     const caller = createAuthCaller(testUser);
 
     await expect(caller.posts.create({ text: '' })).rejects.toThrow();
+  });
+});
+
+describe('posts.update', () => {
+  afterEach(async () => {
+    await db.delete(posts);
+    await db.delete(user);
+  });
+
+  it('updates a post owned by the auth user', async () => {
+    const testUser = {
+      id: 'test-user-1',
+      name: 'Test User 1',
+      email: 'test-user-1@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Orignal post',
+        userId: testUser.id
+      })
+      .returning();
+
+    await caller.posts.update({
+      id: createdPost.id,
+      text: 'Updated post'
+    });
+
+    const [updatedPost] = await db.select().from(posts).where(eq(posts.id, createdPost.id));
+
+    expect(updatedPost.text).toBe('Updated post');
+    expect(updatedPost.userId).toBe(testUser.id);
+  });
+
+  it('rejects unauthenticated users', async () => {
+    const caller = createUnauthCaller();
+
+    await expect(
+      caller.posts.update({
+        id: 'post-id',
+        text: ' some text'
+      })
+    ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+  });
+
+  it("does not update another user's post", async () => {
+    const owner = {
+      id: 'owner-user',
+      name: 'Owner User',
+      email: 'owner@example.com'
+    };
+
+    const otherUser = {
+      id: 'other-user',
+      name: 'Other User',
+      email: 'other@example.com'
+    };
+
+    await db.insert(user).values([owner, otherUser]);
+
+    const caller = createAuthCaller(otherUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Owner post',
+        userId: owner.id
+      })
+      .returning();
+
+    await expect(
+      caller.posts.update({
+        id: createdPost.id,
+        text: 'Other user update'
+      })
+    ).rejects.toMatchObject({ code: 'NOT_FOUND' });
+
+    const [postAfterFailedUpdate] = await db
+      .select()
+      .from(posts)
+      .where(eq(posts.id, createdPost.id));
+
+    expect(postAfterFailedUpdate.text).toBe('Owner post');
+  });
+
+  it('rejects empty text', async () => {
+    const testUser = {
+      id: 'test-user-2',
+      name: 'Test User 2',
+      email: 'test-user-2@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'text post 2',
+        userId: testUser.id
+      })
+      .returning();
+
+    await expect(caller.posts.update({ id: createdPost.id, text: '' })).rejects.toThrow();
   });
 });

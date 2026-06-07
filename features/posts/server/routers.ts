@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { posts } from '@/schema/post-schema';
 import { createTRPCRouter, proctedProcedure } from '@/trpc/init';
+import { TRPCError } from '@trpc/server';
 import { and, eq } from 'drizzle-orm';
 import z from 'zod';
 
@@ -28,11 +29,17 @@ export const postsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id, text } = input;
 
-      return db
+      const results = await db
         .update(posts)
         .set({
           text
         })
         .where(and(eq(posts.userId, ctx.userId), eq(posts.id, id)));
+
+      if (results.rowCount === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'post not found' });
+      }
+
+      return results;
     })
 });
