@@ -167,3 +167,88 @@ describe('posts.update', () => {
     await expect(caller.posts.update({ id: createdPost.id, text: '' })).rejects.toThrow();
   });
 });
+
+describe('posts.delete', () => {
+  afterEach(async () => {
+    await db.delete(posts);
+    await db.delete(user);
+  });
+
+  it('deletes a post owned by the auth user', async () => {
+    const testUser = {
+      id: 'test-user-1',
+      name: 'Test user 1',
+      email: 'test-user-1@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Test users post',
+        userId: testUser.id
+      })
+      .returning();
+
+    await caller.posts.delete({ id: createdPost.id });
+
+    const deletedPosts = await db.select().from(posts).where(eq(posts.id, createdPost.id));
+
+    expect(deletedPosts).toHaveLength(0);
+  });
+
+  it('rejects unauthenticated users', async () => {
+    const caller = createUnauthCaller();
+
+    await expect(
+      caller.posts.delete({
+        id: 'post-id'
+      })
+    ).rejects.toMatchObject({ code: 'UNAUTHORIZED' });
+  });
+
+  it("does not delete another user's post", async () => {
+    const owner = {
+      id: 'owner-user',
+      name: 'Owner User',
+      email: 'owner@example.com'
+    };
+
+    const otherUser = {
+      id: 'other-user',
+      name: 'Other User',
+      email: 'other@example.com'
+    };
+
+    await db.insert(user).values([owner, otherUser]);
+
+    const caller = createAuthCaller(otherUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Owner post',
+        userId: owner.id
+      })
+      .returning();
+
+    await expect(caller.posts.delete({ id: createdPost.id })).rejects.toThrow();
+  });
+
+  it('rejects empty id', async () => {
+    const testUser = {
+      id: 'test-user-2',
+      name: 'Test user 2',
+      email: 'test-user-2@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    await expect(caller.posts.delete({ id: '' })).rejects.toThrow();
+  });
+});

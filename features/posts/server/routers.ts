@@ -41,5 +41,19 @@ export const postsRouter = createTRPCRouter({
       }
 
       return results;
+    }),
+
+  delete: proctedProcedure
+    .input(z.object({ id: z.string().min(1, 'id is required') }))
+    .mutation(async ({ ctx, input }) => {
+      const results = await db
+        .delete(posts)
+        .where(and(eq(posts.userId, ctx.userId), eq(posts.id, input.id)));
+
+      if (results.rowCount === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'post not found' });
+      }
+
+      return results;
     })
 });
