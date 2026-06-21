@@ -18,7 +18,17 @@ export const postsRouter = createTRPCRouter({
         userId: ctx.userId
       });
     }),
+  getOne: proctedProcedure
+    .input(z.object({ id: z.string().min(1, 'id is required') }))
+    .mutation(async ({ input }) => {
+      const results = await db.select().from(posts).where(eq(posts.id, input.id)).limit(1);
 
+      if (results.length === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'post not found' });
+      }
+
+      return results;
+    }),
   update: proctedProcedure
     .input(
       z.object({

@@ -58,6 +58,52 @@ describe('posts.create', () => {
   });
 });
 
+describe('posts.getOne', () => {
+  afterEach(async () => {
+    await db.delete(posts);
+    await db.delete(user);
+  });
+
+  it('gets a post with a valid ID', async () => {
+    const testUser = {
+      id: 'test-user-1',
+      name: 'Test User 1',
+      email: 'test-user-1@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Orignal post',
+        userId: testUser.id
+      })
+      .returning();
+
+    const [post] = await caller.posts.getOne({ id: createdPost.id });
+
+    expect(post.id).toBe(createdPost.id);
+    expect(post.text).toBe(createdPost.text);
+  });
+
+  it('does not get a post with an ivalid ID', async () => {
+    const testUser = {
+      id: 'test-user-2',
+      name: 'Test User 2',
+      email: 'test-user-2@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    await expect(caller.posts.getOne({ id: 'invalid-id' })).rejects.toThrow();
+  });
+});
+
 describe('posts.update', () => {
   afterEach(async () => {
     await db.delete(posts);
