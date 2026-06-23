@@ -1,12 +1,12 @@
 import { db } from '@/lib/db';
 import { posts } from '@/schema/post-schema';
-import { createTRPCRouter, proctedProcedure } from '@/trpc/init';
+import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { TRPCError } from '@trpc/server';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import z from 'zod';
 
 export const postsRouter = createTRPCRouter({
-  create: proctedProcedure
+  create: protectedProcedure
     .input(
       z.object({
         text: z.string().min(1, 'text is required')
@@ -18,9 +18,9 @@ export const postsRouter = createTRPCRouter({
         userId: ctx.userId
       });
     }),
-  getOne: proctedProcedure
+  getOne: protectedProcedure
     .input(z.object({ id: z.string().min(1, 'id is required') }))
-    .mutation(async ({ input }) => {
+    .query(async ({ input }) => {
       const results = await db.select().from(posts).where(eq(posts.id, input.id)).limit(1);
 
       if (results.length === 0) {
@@ -29,7 +29,29 @@ export const postsRouter = createTRPCRouter({
 
       return results;
     }),
-  update: proctedProcedure
+  getMany: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().int().min(1).default(1),
+        size: z.number().int().min(1).max(100).default(10),
+        userID: z.string().nullable().optional()
+      })
+    )
+    .query(async ({ input }) => {
+      const { page, size, userID } = input;
+      const offset = (page - 1) * size;
+
+      const results = await db
+        .select()
+        .from(posts)
+        .where(userID ? eq(posts.userId, userID) : undefined)
+        .offset(offset)
+        .limit(size)
+        .orderBy(desc(posts.createdAt));
+
+      return results;
+    }),
+  update: protectedProcedure
     .input(
       z.object({
         id: z.string().min(1, 'id is required'),
@@ -53,7 +75,7 @@ export const postsRouter = createTRPCRouter({
       return results;
     }),
 
-  delete: proctedProcedure
+  delete: protectedProcedure
     .input(z.object({ id: z.string().min(1, 'id is required') }))
     .mutation(async ({ ctx, input }) => {
       const results = await db

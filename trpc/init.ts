@@ -28,7 +28,7 @@ const t = initTRPC.context<Awaited<ReturnType<typeof createTRPCContext>>>().crea
 export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
-export const proctedProcedure = baseProcedure.use(async ({ ctx, next }) => {
+export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
   if (!ctx.session || !ctx.userId) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }

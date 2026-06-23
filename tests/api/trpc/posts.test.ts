@@ -104,6 +104,118 @@ describe('posts.getOne', () => {
   });
 });
 
+describe('posts.getMany', () => {
+  afterEach(async () => {
+    await db.delete(posts);
+    await db.delete(user);
+  });
+
+  it('gets multiple posts created by any user', async () => {
+    const testUser = {
+      id: 'test-user-1',
+      name: 'Test User 1',
+      email: 'test-user-1@mail.com'
+    };
+
+    const testUser2 = {
+      id: 'test-user-2',
+      name: 'Test User 2',
+      email: 'test-user-2@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+    await db.insert(user).values(testUser2);
+
+    const caller = createAuthCaller(testUser);
+
+    await db
+      .insert(posts)
+      .values({
+        text: 'user post 1',
+        userId: testUser.id
+      })
+      .returning();
+
+    await db
+      .insert(posts)
+      .values({
+        text: 'user2 post 1',
+        userId: testUser2.id
+      })
+      .returning();
+
+    const results = await caller.posts.getMany({});
+
+    expect(results).toHaveLength(2);
+  });
+
+  it('gets multiple posts of a user', async () => {
+    const testUser3 = {
+      id: 'test-user-3',
+      name: 'Test User 3',
+      email: 'test-user-3@mail.com'
+    };
+
+    const testUser4 = {
+      id: 'test-user-4',
+      name: 'Test User 4',
+      email: 'test-user-4@mail.com'
+    };
+
+    await db.insert(user).values(testUser3);
+    await db.insert(user).values(testUser4);
+
+    const caller = createAuthCaller(testUser3);
+
+    await db
+      .insert(posts)
+      .values({
+        text: 'user post 1',
+        userId: testUser3.id
+      })
+      .returning();
+
+    await db
+      .insert(posts)
+      .values({
+        text: 'user post 2',
+        userId: testUser3.id
+      })
+      .returning();
+
+    await db
+      .insert(posts)
+      .values({
+        text: 'user 4 post 1',
+        userId: testUser4.id
+      })
+      .returning();
+
+    const results = await caller.posts.getMany({ userID: testUser4.id });
+
+    expect(results).toHaveLength(1);
+    expect(results).toEqual(
+      expect.arrayContaining([expect.objectContaining({ userId: testUser4.id })])
+    );
+  });
+
+  it('returns no posts when none exist', async () => {
+    const testUser5 = {
+      id: 'test-user-5',
+      name: 'Test User 5',
+      email: 'test-user-5@mail.com'
+    };
+
+    await db.insert(user).values(testUser5);
+
+    const caller = createAuthCaller(testUser5);
+
+    const results = await caller.posts.getMany({});
+
+    expect(results).toHaveLength(0);
+  });
+});
+
 describe('posts.update', () => {
   afterEach(async () => {
     await db.delete(posts);
