@@ -11,7 +11,7 @@ export default function Layout({ children }: PropsWithChildren) {
         <AppSidebar />
         <SidebarInset className="bg-accent">
           <AppHeader />
-          <main className="md:px-24 md:py-6 h-full">{children}</main>
+          <main className="container mx-auto md:px-24 py-6 h-full">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>

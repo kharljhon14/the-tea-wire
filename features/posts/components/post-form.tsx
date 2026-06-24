@@ -10,7 +10,7 @@ import {
   DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog';
-import { Field, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from '@tanstack/react-form-nextjs';
@@ -20,7 +20,7 @@ import Link from 'next/link';
 import z from 'zod';
 
 const createPostSchema = z.object({
-  post: z.string().min(1, 'Post is required').max(200)
+  post: z.string().min(1, 'Post is required').max(200, 'Maximum of 200 characters')
 });
 
 export default function PostForm() {
@@ -79,6 +79,7 @@ export default function PostForm() {
                           aria-invalid={isInvalid}
                           placeholder="What's Happening?"
                         />
+                        {isInvalid && <FieldError errors={field.state.meta.errors} />}
                       </Field>
                     );
                   }}

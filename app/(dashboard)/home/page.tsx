@@ -6,7 +6,6 @@ export default async function HomePage() {
   await requireAuth();
   return (
     <div className="flex flex-col gap-y-6">
-      <PostForm />
       <PostCard />
       <PostCard />
       <PostCard />
