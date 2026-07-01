@@ -9,10 +9,9 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter
 } from '@/components/ui/dialog';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError } from '@/components/ui/field';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { useForm } from '@tanstack/react-form-nextjs';
@@ -20,24 +19,47 @@ import { PlusIcon } from 'lucide-react';
 
 import Link from 'next/link';
 import z from 'zod';
+import { useCreatePost } from '../hooks/use-posts';
+import { useState } from 'react';
 
 const createPostSchema = z.object({
   post: z.string().min(1, 'Post is required').max(200, 'Maximum of 200 characters')
 });
 
 export default function PostForm() {
+  const createPost = useCreatePost();
+  const [dialogState, setDialogState] = useState(false);
+
   const form = useForm({
     defaultValues: {
       post: ''
     },
     validators: {
       onSubmit: createPostSchema
+    },
+    onSubmit: async ({ value }) => {
+      createPost.mutate(
+        { text: value.post },
+        {
+          onSuccess: () => {
+            //Invalidate posts
+            setDialogState(false);
+            form.reset();
+          },
+          onError: () => {
+            // Handle Error
+          }
+        }
+      );
     }
   });
 
   return (
     <div className="flex-auto">
-      <Dialog>
+      <Dialog
+        open={dialogState}
+        onOpenChange={setDialogState}
+      >
         <DialogTrigger asChild>
           <Button>
             <span className="lg:block hidden">Create Post</span>

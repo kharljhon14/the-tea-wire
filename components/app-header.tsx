@@ -1,6 +1,5 @@
 import PostForm from '@/features/posts/components/post-form';
 import { SidebarTrigger } from './ui/sidebar';
-import { Input } from './ui/input';
 import { Search } from 'lucide-react';
 import { InputGroup, InputGroupInput, InputGroupAddon } from './ui/input-group';
 

@@ -26,14 +26,6 @@ import { useCreatePost } from '../hooks/use-posts';
 interface Props {}
 
 export default function PostCard() {
-  const createPost = useCreatePost();
-
-  const handleCreatePost = () => {
-    createPost.mutate({
-      text: 'Spurs in 5'
-    });
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -108,7 +100,6 @@ export default function PostCard() {
           >
             <BookmarkIcon />
           </Button>
-          <Button onClick={handleCreatePost}>Create Post</Button>
         </div>
       </CardFooter>
     </Card>
