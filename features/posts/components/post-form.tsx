@@ -1,6 +1,8 @@
 'use client';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogTrigger,
@@ -38,15 +40,29 @@ export default function PostForm() {
       <Dialog>
         <DialogTrigger asChild>
           <Button>
-            Create Post
+            <span className="lg:block hidden">Create Post</span>
             <PlusIcon />
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-xl text-center">Create Post</DialogTitle>
+            <div>
+              <DialogTitle className="text-xl text-center">Create Post</DialogTitle>
+              <Separator className="my-4" />
+              <Link
+                href="/"
+                className="flex w-fit"
+              >
+                <div className="flex gap-x-2 items-center">
+                  <Avatar>
+                    <AvatarImage src="https://github.com/kharljhon14.png" />
+                    <AvatarFallback>KE</AvatarFallback>
+                  </Avatar>
+                  <CardTitle className="hover:underline">Kharl Enriquez</CardTitle>
+                </div>
+              </Link>
+            </div>
           </DialogHeader>
-          <Separator />
           <form
             id="post-form"
             autoComplete="off"
