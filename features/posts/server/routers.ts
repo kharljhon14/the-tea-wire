@@ -1,3 +1,4 @@
+import { PAGINATION } from '@/config/constant';
 import { db } from '@/lib/db';
 import { posts } from '@/schema/post-schema';
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
@@ -32,9 +33,13 @@ export const postsRouter = createTRPCRouter({
   getMany: protectedProcedure
     .input(
       z.object({
-        page: z.number().int().min(1).default(1),
-        size: z.number().int().min(1).max(100).default(10),
-        userID: z.string().nullable().optional()
+        page: z.number().default(PAGINATION.DEFAULT_PAGE),
+        size: z
+          .number()
+          .min(PAGINATION.MIN_PAGE_SIZE)
+          .max(PAGINATION.MAX_PAGE_SIZE)
+          .default(PAGINATION.DEFAULT_PAGE_SIZE),
+        userID: z.string().default('')
       })
     )
     .query(async ({ input }) => {

@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from '@/components/ui/sonner';
 import { TRPCReactProvider } from '@/trpc/client';
 import { Provider } from 'jotai';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -43,7 +44,9 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <TRPCReactProvider>
-          <Provider>{children}</Provider>
+          <NuqsAdapter>
+            <Provider>{children}</Provider>
+          </NuqsAdapter>
         </TRPCReactProvider>
         <Toaster />
       </body>

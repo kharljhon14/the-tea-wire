@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { initTRPC, TRPCError } from '@trpc/server';
+import superjson from 'superjson';
 
 import { headers } from 'next/headers';
 /**
@@ -22,7 +23,7 @@ const t = initTRPC.context<Awaited<ReturnType<typeof createTRPCContext>>>().crea
   /**
    * @see https://trpc.io/docs/server/data-transformers
    */
-  // transformer: superjson,
+  transformer: superjson
 });
 // Base router and procedure helpers
 export const createTRPCRouter = t.router;

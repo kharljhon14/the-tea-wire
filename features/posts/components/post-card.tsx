@@ -21,11 +21,15 @@ import {
 } from '@/components/ui/card';
 import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { useCreatePost } from '../hooks/use-posts';
+import { Post } from '@/schema/post-schema';
 
-interface Props {}
+import { formatDistanceToNow } from 'date-fns';
 
-export default function PostCard() {
+interface Props {
+  post: Post;
+}
+
+export default function PostCard({ post }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -73,12 +77,12 @@ export default function PostCard() {
           <div className="flex gap-x-2 text-xs">
             <Link href="/">enriquezkharl14@gmail.com</Link>
             <Separator orientation="vertical" />
-            <span>11h</span>
+            <span>{formatDistanceToNow(post.createdAt, { addSuffix: true })}</span>
           </div>
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Blanditiis, voluptatibus?</p>
+        <p>{post.text}</p>
       </CardContent>
       <CardFooter>
         <div className="flex gap-x-2">

@@ -1,20 +1,28 @@
 import { useTRPC } from '@/trpc/client';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { usePostsParams } from './use-posts-params';
 
 export const useCreatePost = () => {
-  //   const querClient = useQueryClient();
+  const queryClient = useQueryClient();
   const trpc = useTRPC();
 
   return useMutation(
     trpc.posts.create.mutationOptions({
       onSuccess: () => {
         toast.success(`Post created`);
-        // TODO! Invalidate posts
+        queryClient.invalidateQueries(trpc.posts.getMany.queryOptions({}));
       },
       onError: (error) => {
         toast.error(`Failed to create post: ${error.message}`);
       }
     })
   );
+};
+
+export const useSuspensePosts = () => {
+  const trpc = useTRPC();
+  const [params] = usePostsParams();
+
+  return useSuspenseQuery(trpc.posts.getMany.queryOptions(params));
 };
