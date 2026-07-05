@@ -1,5 +1,6 @@
 import { PAGINATION } from '@/config/constant';
 import { db } from '@/lib/db';
+import { user } from '@/schema/auth-schema';
 import { posts } from '@/schema/post-schema';
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { TRPCError } from '@trpc/server';
@@ -47,8 +48,21 @@ export const postsRouter = createTRPCRouter({
       const offset = (page - 1) * size;
 
       const results = await db
-        .select()
+        .select({
+          id: posts.id,
+          text: posts.text,
+          createdAt: posts.createdAt,
+          updatedAt: posts.updatedAt,
+          userId: posts.userId,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: user.image
+          }
+        })
         .from(posts)
+        .innerJoin(user, eq(posts.userId, user.id))
         .where(userID ? eq(posts.userId, userID) : undefined)
         .offset(offset)
         .limit(size)

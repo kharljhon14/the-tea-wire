@@ -21,12 +21,12 @@ import {
 } from '@/components/ui/card';
 import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { Post } from '@/schema/post-schema';
 
 import { formatDistanceToNow } from 'date-fns';
+import { PostWithUser } from '../types';
 
 interface Props {
-  post: Post;
+  post: PostWithUser;
 }
 
 export default function PostCard({ post }: Props) {
@@ -43,7 +43,7 @@ export default function PostCard({ post }: Props) {
                 <AvatarImage src="https://github.com/kharljhon14.png" />
                 <AvatarFallback>KE</AvatarFallback>
               </Avatar>
-              <CardTitle className="hover:underline">Kharl Enriquez</CardTitle>
+              <CardTitle className="hover:underline">{post.user.name}</CardTitle>
             </div>
           </Link>
 
@@ -74,11 +74,14 @@ export default function PostCard({ post }: Props) {
         </div>
 
         <CardDescription>
-          <div className="flex gap-x-2 text-xs">
-            <Link href="/">enriquezkharl14@gmail.com</Link>
+          {/* <div className="flex gap-x-2 text-xs">
+            <Link href="/">{post.user.email}</Link>
             <Separator orientation="vertical" />
             <span>{formatDistanceToNow(post.createdAt, { addSuffix: true })}</span>
-          </div>
+          </div> */}
+          <span className="ml-10 text-xs">
+            {formatDistanceToNow(post.createdAt, { addSuffix: true })}
+          </span>
         </CardDescription>
       </CardHeader>
       <CardContent>

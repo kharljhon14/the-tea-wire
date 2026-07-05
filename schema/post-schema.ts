@@ -19,8 +19,6 @@ export const posts = pgTable(
   (table) => [index('post_user_id_idx').on(table.userId)]
 );
 
-export type Post = typeof posts.$inferSelect;
-
 export const postsRelations = relations(posts, ({ one }) => ({
   user: one(user, {
     fields: [posts.userId],
