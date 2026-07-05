@@ -26,3 +26,20 @@ export const useSuspensePosts = () => {
 
   return useSuspenseQuery(trpc.posts.getMany.queryOptions(params));
 };
+
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+  const trpc = useTRPC();
+
+  return useMutation(
+    trpc.posts.delete.mutationOptions({
+      onSuccess: () => {
+        toast.success('Post deleted');
+        queryClient.invalidateQueries(trpc.posts.getMany.queryOptions({}));
+      },
+      onError: (error) => {
+        toast.error(`Failed to delete post: ${error.message}`);
+      }
+    })
+  );
+};

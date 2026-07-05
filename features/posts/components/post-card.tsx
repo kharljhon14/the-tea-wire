@@ -20,16 +20,22 @@ import {
   CardFooter
 } from '@/components/ui/card';
 import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
 
 import { formatDistanceToNow } from 'date-fns';
 import { PostWithUser } from '../types';
+import { useDeletePost } from '../hooks/use-posts';
 
 interface Props {
   post: PostWithUser;
 }
 
 export default function PostCard({ post }: Props) {
+  const deletePost = useDeletePost();
+
+  const handleDeletePost = () => {
+    deletePost.mutate({ id: post.id });
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -63,6 +69,7 @@ export default function PostCard({ post }: Props) {
                     size="sm"
                     variant="ghost"
                     className="text-destructive"
+                    onClick={handleDeletePost}
                   >
                     <TrashIcon className="size-4" />
                     <span>Delete</span>

@@ -45,9 +45,6 @@ export default function PostForm() {
             //Invalidate posts
             setDialogState(false);
             form.reset();
-          },
-          onError: () => {
-            // Handle Error
           }
         }
       );
