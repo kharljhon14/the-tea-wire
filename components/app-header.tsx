@@ -1,3 +1,5 @@
+'use client';
+
 import PostForm from '@/features/posts/components/post-form';
 import { SidebarTrigger } from './ui/sidebar';
 import { Search } from 'lucide-react';

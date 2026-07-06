@@ -7,6 +7,7 @@ import {
   HeartIcon,
   MessageCircleIcon,
   MoreHorizontalIcon,
+  SquarePenIcon,
   TrashIcon
 } from 'lucide-react';
 import { AvatarImage, AvatarFallback, Avatar } from '@/components/ui/avatar';
@@ -24,6 +25,7 @@ import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover
 import { formatDistanceToNow } from 'date-fns';
 import { PostWithUser } from '../types';
 import { useDeletePost } from '../hooks/use-posts';
+import { useSetAtom } from 'jotai';
 
 interface Props {
   post: PostWithUser;
@@ -65,6 +67,13 @@ export default function PostCard({ post }: Props) {
               </PopoverTrigger>
               <PopoverContent className="w-30">
                 <div className="mx-auto">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                  >
+                    <SquarePenIcon className="size-4" />
+                    <span>Edit</span>
+                  </Button>
                   <Button
                     size="sm"
                     variant="ghost"

@@ -20,15 +20,19 @@ import { PlusIcon } from 'lucide-react';
 import Link from 'next/link';
 import z from 'zod';
 import { useCreatePost } from '../hooks/use-posts';
-import { useState } from 'react';
+
+import { PostWithUser } from '../types';
+import { dialogPostAtom, setDialogOpenAtom } from '@/store/atoms';
+import { useAtom } from 'jotai';
 
 const createPostSchema = z.object({
   post: z.string().min(1, 'Post is required').max(200, 'Maximum of 200 characters')
 });
 
 export default function PostForm() {
+  const [dialog] = useAtom(dialogPostAtom);
+  const [_, setDialogOpen] = useAtom(setDialogOpenAtom);
   const createPost = useCreatePost();
-  const [dialogState, setDialogState] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -38,24 +42,27 @@ export default function PostForm() {
       onSubmit: createPostSchema
     },
     onSubmit: async ({ value }) => {
-      createPost.mutate(
-        { text: value.post },
-        {
-          onSuccess: () => {
-            //Invalidate posts
-            setDialogState(false);
-            form.reset();
+      if (!!dialog.id) {
+      } else {
+        createPost.mutate(
+          { text: value.post },
+          {
+            onSuccess: () => {
+              //Invalidate posts
+              setDialogOpen(false);
+              form.reset();
+            }
           }
-        }
-      );
+        );
+      }
     }
   });
 
   return (
     <div className="flex-auto">
       <Dialog
-        open={dialogState}
-        onOpenChange={setDialogState}
+        open={dialog.isOpen}
+        onOpenChange={setDialogOpen}
       >
         <DialogTrigger asChild>
           <Button>
