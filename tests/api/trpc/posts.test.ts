@@ -83,7 +83,7 @@ describe('posts.getOne', () => {
       })
       .returning();
 
-    const [post] = await caller.posts.getOne({ id: createdPost.id });
+    const post = await caller.posts.getOne({ id: createdPost.id });
 
     expect(post.id).toBe(createdPost.id);
     expect(post.text).toBe(createdPost.text);

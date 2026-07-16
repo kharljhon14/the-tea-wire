@@ -25,15 +25,21 @@ import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover
 import { formatDistanceToNow } from 'date-fns';
 import { PostWithUser } from '../types';
 import { useDeletePost } from '../hooks/use-posts';
-import { useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
+import { setDialogOpenAtom } from '@/store/atoms';
 
 interface Props {
   post: PostWithUser;
 }
 
 export default function PostCard({ post }: Props) {
-  const deletePost = useDeletePost();
+  const [_, setDialogOpen] = useAtom(setDialogOpenAtom);
 
+  const handleUpdatePost = () => {
+    setDialogOpen(true, post.id);
+  };
+
+  const deletePost = useDeletePost();
   const handleDeletePost = () => {
     deletePost.mutate({ id: post.id });
   };
@@ -70,6 +76,7 @@ export default function PostCard({ post }: Props) {
                   <Button
                     size="sm"
                     variant="ghost"
+                    onClick={handleUpdatePost}
                   >
                     <SquarePenIcon className="size-4" />
                     <span>Edit</span>

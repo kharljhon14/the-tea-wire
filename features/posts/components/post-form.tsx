@@ -1,8 +1,6 @@
 'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogTrigger,
@@ -19,11 +17,11 @@ import { PlusIcon } from 'lucide-react';
 
 import Link from 'next/link';
 import z from 'zod';
-import { useCreatePost } from '../hooks/use-posts';
+import { useCreatePost, useGetPost, useUpdatePost } from '../hooks/use-posts';
 
-import { PostWithUser } from '../types';
 import { dialogPostAtom, setDialogOpenAtom } from '@/store/atoms';
 import { useAtom } from 'jotai';
+import { useEffect } from 'react';
 
 const createPostSchema = z.object({
   post: z.string().min(1, 'Post is required').max(200, 'Maximum of 200 characters')
@@ -32,23 +30,35 @@ const createPostSchema = z.object({
 export default function PostForm() {
   const [dialog] = useAtom(dialogPostAtom);
   const [_, setDialogOpen] = useAtom(setDialogOpenAtom);
+
   const createPost = useCreatePost();
+  const updatePost = useUpdatePost();
+
+  const { data } = useGetPost(dialog.id);
 
   const form = useForm({
     defaultValues: {
-      post: ''
+      post: data ? data?.text : ''
     },
     validators: {
       onSubmit: createPostSchema
     },
     onSubmit: async ({ value }) => {
       if (!!dialog.id) {
+        updatePost.mutate(
+          { id: dialog.id, text: value.post },
+          {
+            onSuccess: () => {
+              setDialogOpen(false);
+              form.reset();
+            }
+          }
+        );
       } else {
         createPost.mutate(
           { text: value.post },
           {
             onSuccess: () => {
-              //Invalidate posts
               setDialogOpen(false);
               form.reset();
             }
@@ -57,6 +67,18 @@ export default function PostForm() {
       }
     }
   });
+
+  useEffect(() => {
+    if (dialog.id && data) {
+      form.reset({ post: data.text ?? '' });
+    }
+
+    if (!dialog.id) {
+      form.reset({
+        post: ''
+      });
+    }
+  }, [dialog.id, data, form]);
 
   return (
     <div className="flex-auto">
@@ -73,18 +95,20 @@ export default function PostForm() {
         <DialogContent>
           <DialogHeader>
             <div>
-              <DialogTitle className="text-xl text-center">Create Post</DialogTitle>
+              <DialogTitle className="text-xl text-center">
+                {dialog.id ? 'Edit Post' : 'Create Post'}
+              </DialogTitle>
               <Separator className="my-4" />
               <Link
                 href="/"
                 className="flex w-fit"
               >
                 <div className="flex gap-x-2 items-center">
-                  <Avatar>
+                  {/* <Avatar>
                     <AvatarImage src="https://github.com/kharljhon14.png" />
                     <AvatarFallback>KE</AvatarFallback>
-                  </Avatar>
-                  <CardTitle className="hover:underline">Kharl Enriquez</CardTitle>
+                  </Avatar> */}
+                  {/* <CardTitle className="hover:underline"></CardTitle> */}
                 </div>
               </Link>
             </div>
@@ -145,7 +169,13 @@ export default function PostForm() {
                   className="w-full"
                   form="post-form"
                 >
-                  {isSubmitting ? 'Posting...' : 'Post'}
+                  {isSubmitting
+                    ? dialog.id
+                      ? 'Saving...'
+                      : 'Posting...'
+                    : dialog.id
+                      ? 'Save Changes'
+                      : 'Post'}
                 </Button>
               )}
             ></form.Subscribe>

@@ -29,7 +29,7 @@ export const postsRouter = createTRPCRouter({
         throw new TRPCError({ code: 'NOT_FOUND', message: 'post not found' });
       }
 
-      return results;
+      return results[0];
     }),
   getMany: protectedProcedure
     .input(
@@ -85,13 +85,14 @@ export const postsRouter = createTRPCRouter({
         .set({
           text
         })
-        .where(and(eq(posts.userId, ctx.userId), eq(posts.id, id)));
+        .where(and(eq(posts.userId, ctx.userId), eq(posts.id, id)))
+        .returning();
 
-      if (results.rowCount === 0) {
+      if (results.length === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'post not found' });
       }
 
-      return results;
+      return results[0];
     }),
 
   delete: protectedProcedure
