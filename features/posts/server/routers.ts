@@ -1,6 +1,7 @@
 import { PAGINATION } from '@/config/constant';
 import { db } from '@/lib/db';
 import { user } from '@/schema/auth-schema';
+import { hearts } from '@/schema/heart_schema';
 import { posts } from '@/schema/post-schema';
 import { createTRPCRouter, protectedProcedure } from '@/trpc/init';
 import { TRPCError } from '@trpc/server';
@@ -101,6 +102,27 @@ export const postsRouter = createTRPCRouter({
       const results = await db
         .delete(posts)
         .where(and(eq(posts.userId, ctx.userId), eq(posts.id, input.id)));
+
+      if (results.rowCount === 0) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'post not found' });
+      }
+
+      return results;
+    })
+});
+
+export const heartsRouter = createTRPCRouter({
+  heart: protectedProcedure
+    .input(z.object({ id: z.string().min(1, 'post id is required') }))
+    .mutation(async ({ input, ctx }) => {
+      return await db.insert(hearts).values({ userId: ctx.userId, postId: input.id });
+    }),
+  unheart: protectedProcedure
+    .input(z.object({ id: z.string().min(1, 'post id is required') }))
+    .mutation(async ({ input, ctx }) => {
+      const results = await db
+        .delete(hearts)
+        .where(and(eq(hearts.userId, ctx.userId), eq(hearts.postId, input.id)));
 
       if (results.rowCount === 0) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'post not found' });

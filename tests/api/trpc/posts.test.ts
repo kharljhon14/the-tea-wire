@@ -1,8 +1,9 @@
 import { db } from '@/lib/db';
 import { user } from '@/schema/auth-schema';
+import { hearts } from '@/schema/heart_schema';
 import { posts } from '@/schema/post-schema';
 import { createAuthCaller, createUnauthCaller } from '@/tests/helpers/trpc';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { afterEach, describe, expect, it } from 'vitest';
 
 describe('posts.create', () => {
@@ -408,5 +409,85 @@ describe('posts.delete', () => {
     const caller = createAuthCaller(testUser);
 
     await expect(caller.posts.delete({ id: '' })).rejects.toThrow();
+  });
+});
+
+describe('posts.heart', () => {
+  afterEach(async () => {
+    await db.delete(hearts);
+    await db.delete(posts);
+    await db.delete(user);
+  });
+
+  it('allows the current user to heart any unhearted posts', async () => {
+    const testUser = {
+      id: 'test-user-1',
+      name: 'Test User 1',
+      email: 'test-user-1@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Orignal post',
+        userId: testUser.id
+      })
+      .returning();
+
+    await caller.hearts.heart({ id: createdPost.id });
+
+    const createdHearts = await db
+      .select()
+      .from(hearts)
+      .where(and(eq(hearts.userId, testUser.id), eq(hearts.postId, createdPost.id)));
+
+    expect(createdHearts).toHaveLength(1);
+    expect(createdHearts[0]).toMatchObject({
+      userId: testUser.id,
+      postId: createdPost.id
+    });
+  });
+});
+
+describe('posts.unheart', () => {
+  afterEach(async () => {
+    await db.delete(hearts);
+    await db.delete(posts);
+    await db.delete(user);
+  });
+
+  it('removes the current users heart from a post', async () => {
+    const testUser = {
+      id: 'test-user-1',
+      name: 'Test User 1',
+      email: 'test-user-1@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Orignal post',
+        userId: testUser.id
+      })
+      .returning();
+
+    await caller.hearts.heart({ id: createdPost.id });
+
+    await caller.hearts.unheart({ id: createdPost.id });
+
+    const deletedHearts = await db
+      .select()
+      .from(hearts)
+      .where(and(eq(hearts.userId, testUser.id), eq(hearts.postId, createdPost.id)));
+
+    expect(deletedHearts).toHaveLength(0);
   });
 });
