@@ -22,11 +22,12 @@ import {
 } from '@/components/ui/card';
 import { PopoverTrigger, PopoverContent, Popover } from '@/components/ui/popover';
 
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, isEqual } from 'date-fns';
 import { PostWithUser } from '../types';
 import { useDeletePost } from '../hooks/use-posts';
 import { useAtom } from 'jotai';
 import { setDialogOpenAtom } from '@/store/atoms';
+import { Separator } from '@/components/ui/separator';
 
 interface Props {
   post: PostWithUser;
@@ -105,6 +106,10 @@ export default function PostCard({ post }: Props) {
           <span className="ml-10 text-xs">
             {formatDistanceToNow(post.createdAt, { addSuffix: true })}
           </span>
+
+          {!isEqual(post.createdAt, post.updatedAt) && (
+            <span className="mx-2 text-xs">(edited)</span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>
