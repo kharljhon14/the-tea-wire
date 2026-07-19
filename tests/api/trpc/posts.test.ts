@@ -451,6 +451,32 @@ describe('posts.heart', () => {
       postId: createdPost.id
     });
   });
+
+  it('rejects duplicate hearts from the current user', async () => {
+    const testUser = {
+      id: 'test-user-2',
+      name: 'Test User 2',
+      email: 'test-user-2@mail.com'
+    };
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Orignal post',
+        userId: testUser.id
+      })
+      .returning();
+
+    await caller.hearts.heart({ id: createdPost.id });
+    await expect(
+      caller.hearts.heart({
+        id: createdPost.id
+      })
+    ).rejects.toThrow();
+  });
 });
 
 describe('posts.unheart', () => {
@@ -489,5 +515,27 @@ describe('posts.unheart', () => {
       .where(and(eq(hearts.userId, testUser.id), eq(hearts.postId, createdPost.id)));
 
     expect(deletedHearts).toHaveLength(0);
+  });
+
+  it('rejects unheart when the current user has not hearted the post', async () => {
+    const testUser = {
+      id: 'test-user-2',
+      name: 'Test User 2',
+      email: 'test-user-2@mail.com'
+    };
+
+    await db.insert(user).values(testUser);
+
+    const caller = createAuthCaller(testUser);
+
+    const [createdPost] = await db
+      .insert(posts)
+      .values({
+        text: 'Orignal post',
+        userId: testUser.id
+      })
+      .returning();
+
+    await expect(caller.hearts.unheart({ id: createdPost.id })).rejects.toThrow();
   });
 });
