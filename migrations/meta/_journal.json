@@ -1,26 +1,12 @@
 {
-  "version": "7",
+  "version": "1",
   "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
       "version": "7",
-      "when": 1780029678642,
-      "tag": "0000_orange_solo",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1780501187368,
-      "tag": "0001_wooden_puck",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1780549119631,
-      "tag": "0002_hesitant_captain_america",
+      "when": 1784429724371,
+      "tag": "0000_cynical_namorita",
       "breakpoints": true
     }
   ]
